@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jyotish Muhurta Dashboard</title>
+<meta name="color-scheme" content="dark">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<style>
+:root{--bg:#070d24;--card:#101a40;--line:#27346b;--ink:#f5f3ee;--mut:#9aa6d4;--gold:#e0bb5c;--ok:#5fd69a;--bad:#ff7a7a;--mid:#f1c24c;--bg2:var(--bg2);--navbg:var(--navbg);--navon:var(--navon);--h1:#22348a;--h2:#0f1840;--glow:var(--glow);--tl:var(--tl);--curbg:var(--curbg);--hasbg:var(--hasbg);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background:radial-gradient(900px 420px at 85% -8%,var(--glow) 0,transparent 62%),var(--bg);color:var(--ink);font:16px/1.55 Mukta,system-ui,sans-serif;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:'Cormorant Garamond',Mukta,Georgia,serif;font-weight:700;margin:0;color:var(--gold)}
+h1{font-size:1.5rem}h2{font-size:1.3rem;margin-bottom:.4rem}h3{font-size:1.1rem}
+main{max-width:1400px;margin:auto;padding:12px}
+label{font-size:.8rem;color:var(--mut);display:block}
+input,select,button{width:100%;background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit}
+button{cursor:pointer;width:auto}button:hover{border-color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+details.ctl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
+details.ctl summary{cursor:pointer;color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.hero{background:linear-gradient(160deg,var(--h1),var(--h2) 72%);border:1px solid var(--line);border-radius:20px;padding:18px;margin:10px 0}
+.hero .lg{font:700 2.6rem/1.1 'Cormorant Garamond',Mukta,serif;color:var(--gold);margin:4px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.chip{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:.88rem}
+.win{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 12px;border-radius:10px;margin:6px 0;background:var(--bg2);border-left:4px solid var(--ok)}
+.win.x{border-left-color:var(--bad)}
+.kv{padding:9px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv small{display:block}.kv b{font-size:1.3rem}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-weight:600}
+table.wrap td,table.wrap th{white-space:normal}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.mid{color:var(--mid)}.mut{color:var(--mut)}
+.tl{display:flex;min-width:640px;height:46px;border-radius:10px;overflow:hidden;border:1px solid var(--line);position:relative}
+.tl button{border:0;border-right:1px solid var(--bg);border-radius:0;padding:2px;font-size:.75rem;background:var(--tl);white-space:nowrap;overflow:hidden}
+.tl button.cur{background:var(--curbg);color:var(--gold)}
+.now{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);pointer-events:none}
+.big{font:700 1.7rem/1.2 'Cormorant Garamond',Mukta,serif}
+tr.hl td{background:var(--hasbg);color:var(--gold)}
+.stars{color:var(--gold);letter-spacing:2px}
+.sec{display:none}
+small{color:var(--mut)}
+nav{overflow-x:auto;position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;background:var(--navbg);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1 0 auto;padding:8px 12px;border:0;background:none;color:var(--mut);font-size:.8rem;padding:8px 2px;white-space:nowrap}
+nav button.on{color:var(--gold);background:var(--navon)}
+.tt{min-width:0}.tt th,.tt td{color:#1a1a1a;white-space:normal;overflow-wrap:anywhere;padding:6px 5px;border-bottom:1px solid #fff;font-size:.8rem}
+.tt tr:first-child th{background:#ffc000;font-style:italic;text-align:center}.tt th{background:#ffc000;font-weight:600}
+.tt .c{text-align:center;font-style:italic}.tt .rl td{background:#fce4d6}.tt .rg td{background:#f8cbad}.tt .rb td{background:#ff9999}
+.tt td.cur{font-weight:700;outline:3px solid #0a1230;outline-offset:-3px}
+.tl2{height:8px;background:var(--bg2);border-radius:6px;overflow:hidden;margin:8px 0}.tl2 i{display:block;height:100%;background:linear-gradient(90deg,var(--curbg),var(--gold))}
+.ng{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px}
+.nc{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:6px;font-size:.78rem;overflow-wrap:anywhere;min-height:62px}
+.nc.has{border-color:var(--gold);background:var(--hasbg)}.nc small{color:var(--mut)}.nc b{display:block;font-weight:600}.nc .pp{color:var(--gold);font-weight:600}
+.mx td,.mx th{text-align:center;padding:5px 3px;font-size:.82rem}.mx td.s{background:var(--hasbg);color:var(--gold);font-weight:700}
+.sec.on{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px;align-items:start}
+.sec.on>.card{margin:0}.sec.on>.full{grid-column:1/-1}
+.top{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px;margin:10px 0}.top>*{margin:0!important}
+.ng{grid-template-columns:repeat(9,minmax(0,1fr));grid-auto-rows:1fr;grid-auto-flow:row;gap:6px}.nc{min-height:0;font-size:.74rem;padding:5px}
+@media(min-width:900px){body{padding-left:190px;padding-bottom:16px}nav{top:0;right:auto;width:180px;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:16px 8px;overflow-y:auto}nav button{flex:none;text-align:left;font-size:.95rem;padding:10px 12px}}
+.win.m{border-left-color:var(--mid)}
+.split{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:12px;align-items:start}.split .card{margin:0}.stk{display:grid;gap:12px}
+.chg{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:10px}.chg .card{padding:10px;margin:0}
+@media(min-width:900px){.up{position:sticky;top:10px;max-height:92vh;overflow:auto}}
+.tbr{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.tbr select{width:auto}
+.chips2{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.chips2 .chip{display:inline-flex;gap:4px;align-items:center;cursor:pointer}
+.pc{padding:16px!important;border-top:3px solid var(--gold)}.pc h3{margin-bottom:10px;font-size:1.2rem}.pc table{border-collapse:separate;border-spacing:0}.pc th,.pc td{padding:10px 12px!important;font-size:.92rem;white-space:normal}.pc tr:nth-child(even) td{background:rgba(127,127,127,.08)}
+:root[data-theme=light]{--bg:#f6f3ea;--card:#ffffff;--line:#d9d2bf;--ink:#1d2433;--mut:#5b6478;--gold:#9a6b00;--ok:#1a8f4d;--bad:#c0392b;--mid:#a86a00;--bg2:#efe9da;--navbg:#fffffff2;--navon:#efe3bf;--h1:#fbe9b7;--h2:#fffaf0;--glow:#f2e2b0;--tl:#e9e2cf;--curbg:#f3dc9a;--hasbg:#fbefc8;color-scheme:light}
+:root[data-theme=saffron]{--bg:#fff4e0;--card:#fffdf7;--line:#f0cf9a;--ink:#3a2208;--mut:#7a5a2e;--gold:#d9570a;--ok:#2e7d32;--bad:#c62828;--mid:#b26a00;--bg2:#fde8c4;--navbg:#fff7e8f2;--navon:#fddba6;--h1:#ffd08a;--h2:#fff4e0;--glow:#ffd9a0;--tl:#fbe0b0;--curbg:#ffc978;--hasbg:#ffe6b8;color-scheme:light}
+:root[data-theme=forest]{--bg:#06150f;--card:#0d2318;--line:#1f4a36;--ink:#eef5ef;--mut:#8fb8a0;--gold:#d8c46a;--ok:#6ee7a0;--bad:#ff8a80;--mid:#f2c94c;--bg2:#091c13;--navbg:#07180ff2;--navon:#123324;--h1:#1b5a3c;--h2:#0b2a1b;--glow:#145034;--tl:#14402b;--curbg:#4a4413;--hasbg:#2a2a10;color-scheme:dark}
+:root[data-theme=royal]{--bg:#120a24;--card:#1d1238;--line:#3e2a73;--ink:#f6f1ff;--mut:#b5a6e0;--gold:#f4a6c8;--ok:#6ee7b7;--bad:#ff7b8a;--mid:#fbbf24;--bg2:#170d2e;--navbg:#130a26f2;--navon:#2a1a52;--h1:#4b2f99;--h2:#1d1238;--glow:#3a1f7a;--tl:#2f1d63;--curbg:#5a2d57;--hasbg:#3b2250;color-scheme:dark}
+</style></head><body><main>
+<h1>ज्योतिष मुहूर्त · Jyotish Muhurta</h1>
+<small>Sidereal · Lahiri ayanamsha · Astronomy Engine ephemeris</small>
+<div class="tbr"><label>🌐 <select id="lang" aria-label="Language"></select></label><button id="gt">Google Translate</button><label>🎨 <select id="theme" aria-label="Theme"></select></label><small id="trst"></small></div>
+<details class="ctl"><summary>📅 तारीख · समय · स्थान · जन्म नक्षत्र बदलें</summary><div class="bar">
+<div><label for="d">Date</label><input type="date" id="d"></div>
+<div><label for="t">Time</label><input type="time" id="t"></div>
+<div><label for="lat">Latitude</label><input id="lat" type="number" step="0.0001"></div>
+<div><label for="lon">Longitude</label><input id="lon" type="number" step="0.0001"></div>
+<div><label for="tz">Timezone</label><input id="tz"></div>
+<div><label for="bn">Birth nakshatra</label><select id="bn"></select></div>
+<div><label for="br">Birth rashi (Moon sign)</label><select id="br"></select></div>
+</div>
+<div class="bar" style="grid-template-columns:repeat(auto-fit,minmax(90px,max-content))">
+<button id="prev">‹ Previous day</button><button id="now">Now</button><button id="next">Next day ›</button><button id="gps">Use my location</button>
+</div>
+</details><div class="top" id="top"><div id="hero"></div><div id="chartbox"></div></div><div id="err" class="card bad" hidden></div><section class="sec on" id="s-dash"></section><nav id="nav"></nav>
+<section class="sec" id="s-pan"></section>
+<section class="sec" id="s-lag"></section>
+<section class="sec" id="s-tara"></section>
+<section class="sec" id="s-pl"></section>
+<section class="sec" id="s-det"></section><section class="sec" id="s-ai"></section><section class="sec" id="s-nk"></section>
+</main>
+<script>
+const $=s=>document.querySelector(s),D2R=Math.PI/180,mod=(a,n)=>((a%n)+n)%n,J2000=Date.UTC(2000,0,1,12),CEN=3.15576e12,AY0=23.853,NK=40/3;
+const N=["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"];
+const LORD9=["Ketu","Venus","Sun","Moon","Mars","Rahu","Jupiter","Saturn","Mercury"];
+const DEITY=["Ashwini Kumaras","Yama","Agni","Brahma","Soma","Rudra","Aditi","Brihaspati","Sarpa","Pitris","Bhaga","Aryaman","Savitar","Tvashtar","Vayu","Indra-Agni","Mitra","Indra","Nirriti","Apas","Vishvedevas","Vishnu","Vasus","Varuna","Aja Ekapada","Ahir Budhnya","Pushan"];
+const GANA="DMRMDMDDRRMMDRDRDRRMMDRRMMD".split(""),GN={D:"Deva",M:"Manushya",R:"Rakshasa"};
+const TY="K,U,X,D,M,T,C,K,T,U,U,D,K,M,C,X,M,T,T,U,D,C,C,C,U,D,M".split(","),TN={K:"Kshipra (swift)",U:"Ugra (fierce)",X:"Mishra (mixed)",D:"Dhruva (fixed)",M:"Mridu (gentle)",T:"Tikshna (sharp)",C:"Chara (movable)"};
+const RA=["Mesha","Vrishabha","Mithuna","Karka","Simha","Kanya","Tula","Vrishchika","Dhanu","Makara","Kumbha","Meena"],RL=["Mars","Venus","Mercury","Moon","Sun","Mercury","Venus","Mars","Jupiter","Saturn","Saturn","Jupiter"];
+const TI=["Pratipada","Dwitiya","Tritiya","Chaturthi","Panchami","Shashthi","Saptami","Ashtami","Navami","Dashami","Ekadashi","Dwadashi","Trayodashi","Chaturdashi","Purnima"];
+const TC=["Nanda","Bhadra","Jaya","Rikta","Purna"];
+const YG=["Vishkambha","Priti","Ayushman","Saubhagya","Shobhana","Atiganda","Sukarma","Dhriti","Shula","Ganda","Vriddhi","Dhruva","Vyaghata","Harshana","Vajra","Siddhi","Vyatipata","Variyana","Parigha","Shiva","Siddha","Sadhya","Shubha","Shukla","Brahma","Indra","Vaidhriti"],YBAD=[0,5,8,9,12,14,16,18,26];
+const KM=["Bava","Balava","Kaulava","Taitila","Gara","Vanija","Vishti (Bhadra)"],KF=["Shakuni","Chatushpada","Naga"];
+const karana=k=>k==0?"Kimstughna":k<57?KM[(k-1)%7]:KF[k-57];
+const WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],WL=["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"],CH=["Sun","Venus","Mercury","Moon","Saturn","Jupiter","Mars"];
+const RAHU=[8,2,7,5,6,4,3],YAMA=[5,4,3,2,1,7,6],GUL=[7,6,5,4,3,2,1];
+const TARA=[["Janam","Mixed","mid","Routine work","New ventures, major decisions"],["Sampat","Gain, resources","ok","Finance, growth, productive work","Idle drift"],["Vipat","Obstacles","bad","Caution, review","Starting important work"],["Kshema","Well-being","ok","Health, stability, home matters","—"],["Pratyari","Opposition","bad","Defensive tasks","Disputes, negotiations"],["Sadhak","Achievement","ok","Goals, study, skilled work","—"],["Nidhan","Danger, loss","bad","Rest, routine","Risk, travel, launches"],["Mitra","Friendly","ok","Partnerships, meetings","—"],["Atimitra","Very friendly","ok","Almost anything constructive","—"]];
+let S={ms:Date.now(),lat:28.6139,lon:77.2090,tz:'Asia/Kolkata',live:true,tab:'dash',dv:1,dvs:[9,10],moon:false,mxp:['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu','Uranus','Neptune','Pluto'],showChart:true};
+let R=null,CACHE=new Map();try{const q=JSON.parse(localStorage.getItem('dvs'));if(Array.isArray(q))S.dvs=q}catch(e){}try{const q=JSON.parse(localStorage.getItem('mxp'));if(Array.isArray(q))S.mxp=q}catch(e){}const svm=()=>{try{localStorage.setItem('mxp',JSON.stringify(S.mxp))}catch(e){}};const sv=()=>{try{localStorage.setItem('dvs',JSON.stringify(S.dvs))}catch(e){}};
+function tzOff(ms){const p=new Intl.DateTimeFormat('en-US',{timeZone:S.tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'}).formatToParts(new Date(ms)).reduce((o,x)=>(o[x.type]=+x.value,o),{});return(Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute,p.second)-Math.floor(ms/1000)*1000)/60000}
+function lp(ms){const p=new Intl.DateTimeFormat('en-CA',{timeZone:S.tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(ms)).reduce((o,x)=>(o[x.type]=x.value,o),{});return p}
+const dayStart=ms=>{const p=lp(ms),g=Date.UTC(+p.year,+p.month-1,+p.day);return g-tzOff(g)*60000};
+const wdOf=ms=>{const p=lp(ms);return new Date(Date.UTC(+p.year,+p.month-1,+p.day)).getUTCDay()};
+const fT=ms=>ms==null?'—':new Intl.DateTimeFormat('en-GB',{timeZone:S.tz,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(ms);
+const fDT=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:S.tz,day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(ms);
+const fDur=m=>{m=Math.max(0,Math.round(m/60000));return Math.floor(m/60)+'h '+(m%60)+'m'};
+const ayan=ms=>AY0+1.39697*((ms-J2000)/CEN);
+function sid(body,ms){const k='b'+body+ms;if(CACHE.has(k))return CACHE.get(k);const d=new Date(ms);let v;
+ if(body==='Rahu'||body==='Ketu'){const T=(ms-J2000)/CEN;v=mod(125.04452-1934.136261*T-ayan(ms)+(body==='Ketu'?180:0),360)}
+ else if(body==='Sun'){v=mod(Astronomy.SunPosition(d).elon-ayan(ms),360)}
+ else{const e=Astronomy.Ecliptic(Astronomy.GeoVector(body,d,true)).elon;const K=Astronomy.SunPosition(d).elon-Astronomy.Ecliptic(Astronomy.GeoVector('Sun',d,true)).elon;v=mod(e+K-ayan(ms),360)}
+ if(CACHE.size>20000)CACHE.clear();CACHE.set(k,v);return v}
+function lagna(ms){const gst=Astronomy.SiderealTime(new Date(ms)),r=mod(gst*15+S.lon,360)*D2R,T=(ms-J2000)/CEN,e=(23.4393-0.0130042*T)*D2R;
+ return mod(Math.atan2(Math.cos(r),-(Math.sin(r)*Math.cos(e)+Math.tan(S.lat*D2R)*Math.sin(e)))/D2R-ayan(ms),360)}
+const diff=ms=>mod(sid('Moon',ms)-sid('Sun',ms),360);
+const F={tithi:ms=>Math.floor(diff(ms)/12),nak:ms=>Math.floor(sid('Moon',ms)/NK),yoga:ms=>Math.floor(mod(sid('Sun',ms)+sid('Moon',ms),360)/NK),kar:ms=>Math.floor(diff(ms)/6)};
+function edges(fn,ms,st=600000,mx=400){const i=fn(ms);let hi=ms;for(let k=0;k<mx;k++){hi+=st;if(fn(hi)!==i)break}let lo=hi-st;while(hi-lo>30000){const m=(lo+hi)/2;fn(m)===i?lo=m:hi=m}const end=hi;
+ let l2=ms;for(let k=0;k<mx;k++){l2-=st;if(fn(l2)!==i)break}let h2=l2+st;while(h2-l2>30000){const m=(l2+h2)/2;fn(m)===i?h2=m:l2=m}return{i,start:h2,end}}
+const rs=(b,dir,from)=>{const r=Astronomy.SearchRiseSet(b,new Astronomy.Observer(S.lat,S.lon,0),dir,new Date(from),1.3);return r?r.date.getTime():null};
+const AB=['K','V','Su','M','Ma','R','J','Sa','Me'],nkl=i=>N[i].replace(' ','')+'_'+AB[i%9],HA={Sun:'सू',Moon:'चं',Mars:'मं',Mercury:'बु',Jupiter:'गु',Venus:'शु',Saturn:'श',Rahu:'रा',Ketu:'के',Uranus:'अ',Neptune:'ने',Pluto:'प्लू'};
+let TRC={},AIOUT='';
+const MN=['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
+function nxt(fn,t,st,lim){const i=fn(t);let hi=t;while(hi<lim){hi+=st;if(fn(hi)!==i){let lo=hi-st;while(hi-lo>6e4){const m=(lo+hi)/2;fn(m)===i?lo=m:hi=m}return hi}}return null}
+function upcoming(ms){const out=[],lim=ms+366*864e5,SS={Sun:2,Mercury:2,Venus:2,Mars:3,Jupiter:5,Saturn:5,Rahu:7,Ketu:7,Uranus:10,Neptune:20,Pluto:40};
+ for(const p in SS){const fn=m=>Math.floor(sid(p,m)/30);let t=ms;for(let k=0;k<40;k++){const e=nxt(fn,t,SS[p]*864e5,lim);if(!e)break;out.push({t:e,p,kind:'sign',a:fn(e-36e5),b:fn(e+36e5)});t=e+36e5}}
+ for(const p of ['Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']){const mo=m=>mod(sid(p,m+432e5)-sid(p,m-432e5)+180,360)-180<0?1:0;let t=ms;for(let k=0;k<12;k++){const e=nxt(mo,t,3*864e5,lim);if(!e)break;out.push({t:e,p,kind:'retro',b:mo(e+36e5)});t=e+36e5}}
+ {const fn=m=>Math.floor(sid('Moon',m)/30);let t=ms;for(let k=0;k<20;k++){const e=nxt(fn,t,36e5,ms+30*864e5);if(!e)break;out.push({t:e,p:'Moon',kind:'sign',a:fn(e-36e5),b:fn(e+36e5)});t=e+36e5}}
+ return out.sort((x,y)=>x.t-y.t)}
+
+const DVN={1:'D1 राशि',2:'D2 होरा',3:'D3 द्रेष्काण',4:'D4 चतुर्थांश',7:'D7 सप्तांश',9:'D9 नवांश',10:'D10 दशांश',12:'D12 द्वादशांश',16:'D16 षोडशांश',20:'D20 विंशांश',24:'D24 सिद्धांश',27:'D27 भांश',30:'D30 त्रिंशांश',40:'D40 खवेदांश',45:'D45 अक्षवेदांश',60:'D60 षष्ट्यंश'};
+function dv(n,L){const sg=Math.floor(L/30),d=L%30,od=sg%2===0,mv=sg%3,el=sg%4;
+ switch(n){case 1:return sg;case 2:return (od?d<15:d>=15)?4:3;case 3:return (sg+4*Math.floor(d/10))%12;case 4:return (sg+3*Math.floor(d/7.5))%12;
+ case 7:return (sg+(od?0:6)+Math.floor(d/(30/7)))%12;case 9:return Math.floor(L/(10/3))%12;case 10:return (sg+(od?0:8)+Math.floor(d/3))%12;case 12:return (sg+Math.floor(d/2.5))%12;
+ case 16:return ([0,4,8][mv]+Math.floor(d/(30/16)))%12;case 20:return ([0,8,4][mv]+Math.floor(d/1.5))%12;case 24:return ((od?4:3)+Math.floor(d/1.25))%12;
+ case 27:return ([0,3,6,9][el]+Math.floor(d/(30/27)))%12;
+ case 30:{const b=od?[5,10,18,25]:[5,12,20,25],r=od?[0,10,8,2,6]:[1,5,11,9,7];let i=0;while(i<4&&d>=b[i])i++;return r[i]}
+ case 40:return ((od?0:6)+Math.floor(d/0.75))%12;case 45:return ([0,4,8][mv]+Math.floor(d/(2/3)))%12;case 60:return (sg+Math.floor(d*2))%12}}
+const PH={Sun:'सूर्य',Moon:'चन्द्र',Mars:'मंगल',Mercury:'बुध',Jupiter:'गुरु',Venus:'शुक्र',Saturn:'शनि',Rahu:'राहु',Ketu:'केतु',Uranus:'अरुण',Neptune:'वरुण',Pluto:'प्लूटो'};
+function computeTr(ms){const ST={Sun:[864e5,60],Moon:[36e5,120],Mercury:[864e5,60],Venus:[864e5,70],Mars:[864e5,300],Jupiter:[2592e5,300],Saturn:[2592e5,500],Rahu:[432e6,150],Ketu:[432e6,150],Uranus:[864e6,320],Neptune:[1728e6,320],Pluto:[3456e6,330]};
+ return ['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu','Uranus','Neptune','Pluto'].map(p=>{const[st,mx]=ST[p],fn=m=>Math.floor(sid(p,m)/30),e=edges(fn,ms,st,mx),r={p,i:e.i,a:e.start,b:e.end,pv:fn(e.start-36e5),nx:fn(e.end+36e5)};
+  if(['Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'].includes(p)){const mo=m=>mod(sid(p,m+432e5)-sid(p,m-432e5)+180,360)-180<0?1:0,q=edges(mo,ms,2592e5,250);r.rs=q.i;r.ra=q.start;r.rb=q.end}
+  return r})}
+function chart(o,n=1,leg=1){const ls=dv(n,o.asc),C=[[200,96],[100,44],[44,100],[96,200],[44,300],[100,360],[200,304],[300,360],[356,300],[304,200],[356,100],[300,44]],by=C.map(()=>[]);
+ o.pl.forEach(p=>by[mod(dv(n,p.lon)-ls,12)].push(HA[p.p]+(p.retro&&p.p!=='Rahu'&&p.p!=='Ketu'?'(व)':'')+(n==1?Math.floor(p.lon%30):'')));
+ let g='';C.forEach((c,i)=>{const L=by[i],rows=[];for(let j=0;j<L.length;j+=2)rows.push(L.slice(j,j+2).join(' '));const sh=rows.length>1?8:0;
+  g+=`<text x="${c[0]}" y="${c[1]-12-sh}" style="fill:${i?'var(--mut)':'var(--gold)'}" font-size="12" text-anchor="middle">${i?'':'ल '}${(ls+i)%12+1}</text>`;
+  rows.forEach((r,j)=>g+=`<text x="${c[0]}" y="${c[1]+4+j*15-sh}" style="fill:var(--ink)" font-size="13" text-anchor="middle">${r}</text>`)});
+ return `<svg viewBox="0 0 400 400" style="width:100%;max-width:380px;display:block;margin:10px auto 0" role="img" aria-label="कुंडली चार्ट"><g style="stroke:var(--mut)" stroke-width="1.5" fill="none"><rect x="1" y="1" width="398" height="398"/><path d="M1 1L399 399M399 1L1 399M200 1L399 200L200 399L1 200Z"/></g>${g}</svg>${leg?'<small>ल = लग्न, घर के अंक = राशि (1 मेष … 12 मीन), ग्रह के साथ अंक = राशि में अंश, (व) = वक्री</small>':''}`}
+function aiPrompt(o){const bn=+$('#bn').value,br=+$('#br').value,nk=o.nak.i,t=TARA[o.tara],nx=TARA[mod(o.nn-bn,27)%9],fx=m=>(m<o.ds||m-o.ds>=864e5)?fDT(m):fT(m);
+ const f={now:fDT(S.ms),weekday:WD[o.wd],sunrise:fT(o.sr),sunset:fT(o.ss),birth_nakshatra:N[bn],birth_moon_rashi:RA[br],lagna_now:RA[Math.floor(o.asc/30)],lagna_today:o.lag.map(l=>RA[l.r]+' '+fT(l.start)+'-'+fT(l.end)),
+ tithi:(o.shukla?'Shukla ':'Krishna ')+TI[o.tn]+' ('+o.tcl+') till '+fx(o.tith.end),nakshatra:N[nk]+' till '+fx(o.nak.end)+'; lord '+LORD9[nk%9]+'; deity '+DEITY[nk]+'; gana '+GN[GANA[nk]]+'; type '+TN[TY[nk]],next_nakshatra:N[o.nn],
+ yoga_today:o.yl.map(y=>YG[y.i]+(YBAD.includes(y.i)?' (inauspicious)':' (auspicious)')+' till '+fx(y.end)),karana:karana(o.kar.i)+' till '+fx(o.kar.end)+(o.vishti?' (Vishti/Bhadra)':''),
+ tara_now:t[0]+' (nakshatra '+o.n+' from birth) result '+t[2],tara_after_nakshatra_change:nx[0]+' result '+nx[2],
+ chandra_bala_segments:o.cbs.map(c=>RA[c.i]+' house '+(mod(c.i-br,12)+1)+' '+(c.start<o.sr?'sunrise':fx(c.start))+'-'+(c.end>=o.sr2?'next sunrise':fx(c.end))),panchak_active:o.panchak,
+ hora:o.hora.map(h=>h.p+' '+fT(h.a)+'-'+fT(h.b)),abhijit:o.abh.map(fT).join('-'),rahu_kalam:o.seg(RAHU[o.wd]).map(fT).join('-'),yamaganda:o.seg(YAMA[o.wd]).map(fT).join('-'),gulika:o.seg(GUL[o.wd]).map(fT).join('-'),
+ app_best_windows:o.bestT,app_bhadra_windows:o.bhadraT,planets:o.pl.map(p=>p.p+' '+dg(p.lon)+(p.retro?' retro':'')),app_score:o.sc.all.toFixed(1)+'/10'};
+ return 'तुम एक अनुभवी वैदिक ज्योतिष सहायक हो। नीचे ऐप की गणना (JSON) है। केवल इन्हीं आँकड़ों का उपयोग करो; खुद नया समय या नई गणना मत बनाओ। उपयोगकर्ता सोशल मीडिया पर वीडियो पोस्ट करने और दिन का काम शुरू करने से पहले मुहूर्त देखता है।\nजवाब '+LANGS[LANG]+' भाषा में, छोटे point-wise checklist (✓ / ✗ / ~) में, इसी क्रम में दो:\n1. नक्षत्र का सम्पूर्ण विवरण (स्वामी, देवता, गण, प्रकृति, पंचक)\n2. गोचर चन्द्र बल (दिन के हर चन्द्र-राशि खंड सहित)\n3. पक्ष बल और तिथि\n4. तारा बल\n5. होरा\n6. समय-खिड़कियाँ: (क) वीडियो पोस्ट करने के सबसे अच्छे 2-3 समय (ख) दिन का काम शुरू करने के सबसे अच्छे 2-3 समय (ग) बचने के समय\n7. निष्पक्ष समीक्षा और अंतिम निष्कर्ष: आज का दिन अच्छा / मिश्रित / कमज़ोर, एक पंक्ति में कारण\n8. गोचर अपडेट (ग्रह स्थिति, वक्री)\nनियम: कोई ज्योतिष नियम गढ़ो मत। जिस बात का मुहूर्त चिन्तामणि से सीधा उद्धरण तुम पक्का नहीं दे सकते, उसे "सामान्य ज्योतिष मार्गदर्शन" कहो। समय हमेशा ऊपर दिए खंडों से लो।\n\nJSON:\n'+JSON.stringify(f)}
+async function runAI(){const b=$('#aib');b.disabled=true;$('#aio').textContent='Claude गणना पढ़ रहा है…';
+ try{const sm=window.claude&&await window.claude.use('sample');if(!sm){$('#aio').textContent='AI सुविधा केवल claude.ai वाले लिंक में चलती है।';b.disabled=false;return}
+  const fm=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  const r=await sm(aiPrompt(R),{cache:false,onText:({text})=>{AIOUT=fm(text);const e=$('#aio');if(e)e.innerHTML=AIOUT}});AIOUT=fm(r.text);const e=$('#aio');if(e)e.innerHTML=AIOUT}
+ catch(e){const x=$('#aio');if(x)x.textContent='AI अभी उपलब्ध नहीं: '+(e.message||e.code||'')}
+ const b2=$('#aib');if(b2)b2.disabled=false}
+function renderAI(){$('#s-ai').innerHTML=`<div class="card"><h2>✨ आज का पूरा मुहूर्त</h2><p>पंचांग, तारा, चन्द्र बल, होरा और समय की गणना के आधार पर Claude आज का पूरा चेकलिस्ट हिंदी में बनाता है, जिसमें वीडियो पोस्ट करने और काम शुरू करने के अलग-अलग शुभ समय हैं।</p><button id="aib">मुहूर्त निकालें</button><div id="aio" style="white-space:pre-wrap;margin-top:12px">${AIOUT}</div><small>AI की व्याख्या सामान्य ज्योतिष मार्गदर्शन है। समय ऊपर की गणना से आते हैं। पहली बार अनुमति माँगी जाएगी।</small></div>`;$('#aib').onclick=runAI}
+const LANGS={hi:'हिन्दी',en:'English',es:'Español',fr:'Français',de:'Deutsch',pt:'Português',ru:'Русский',bn:'বাংলা',ta:'தமிழ்',te:'తెలుగు',mr:'मराठी',gu:'ગુજરાતી',pa:'ਪੰਜਾਬੀ',kn:'ಕನ್ನಡ',ml:'മലയാളം',ja:'日本語',zh:'中文'};
+let LANG='hi',TR={},ORIG=new WeakMap(),TRB=false;try{LANG=localStorage.getItem('lang')||'hi'}catch(e){}if(!LANGS[LANG])LANG='hi';
+const NUM=/\d+(?:[.:,]\d+)*/g,setSt=t=>{const e=$('#trst');if(e)e.textContent=t};
+function tnodes(){const w=document.createTreeWalker($('main'),NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;if(!p||['SCRIPT','STYLE'].includes(p.nodeName)||(p.closest&&p.closest('#bn,#br,#lang,#aio,#trst,svg')))return 3;return ORIG.has(n)||/[A-Za-z\u0900-\u097F]{2}/.test(n.nodeValue)?1:3}});const a=[];while(w.nextNode())a.push(w.currentNode);return a}
+function tpl(t){const v=[];return[t.replace(NUM,m=>(v.push(m),'{'+(v.length-1)+'}')),v]}
+function applyLang(){const ns=tnodes();
+ if(LANG==='hi'){ns.forEach(n=>{if(ORIG.has(n))n.nodeValue=ORIG.get(n)});return}
+ const C=TR[LANG]||(TR[LANG]={}),vis=new Set(),hid=new Set();
+ ns.forEach(n=>{const src=ORIG.has(n)?ORIG.get(n):n.nodeValue,m=src.match(/^(\s*)([\s\S]*?)(\s*)$/),[k,v]=tpl(m[2]);if(!k)return;ORIG.set(n,src);
+  if(C[k]!==undefined)n.nodeValue=m[1]+C[k].replace(/\{(\d+)\}/g,(x,i)=>v[i]??x)+m[3];else(n.parentElement&&n.parentElement.offsetParent!==null?vis:hid).add(k)});
+ const miss=[...vis,...[...hid].filter(k=>!vis.has(k))];if(miss.length)transl(miss)}
+async function transl(list){if(TRB)return;TRB=true;const lg=LANG,C=TR[lg]||(TR[lg]={});setSt('🌐 अनुवाद हो रहा है…');
+ try{const sm=window.claude&&await window.claude.use('sample');
+  if(!sm)setSt('AI अनुवाद केवल claude.ai लिंक पर चलता है। दूसरी जगह Google Translate बटन उपयोग करें।');
+  else{for(let i=0;i<list.length;i+=100){const part=list.slice(i,i+100);
+   const r=await sm('Translate these UI strings (Hindi or English, from a Vedic astrology app) into '+LANGS[lg]+'. Keep {0},{1}… placeholders, emoji and symbols exactly. Keep Sanskrit proper names written in Latin letters as they are unless a common local name exists. Return ONLY a JSON array of '+part.length+' strings in the same order.\n'+JSON.stringify(part),{cache:false});
+   try{const a=JSON.parse(r.text.replace(/```json|```/g,'').trim());if(Array.isArray(a))part.forEach((k,j)=>{if(typeof a[j]==='string')C[k]=a[j]})}catch(e){}
+   if(LANG===lg)applyLang()}setSt('')}}
+ catch(e){setSt('अनुवाद उपलब्ध नहीं: '+(e.message||e.code||''))}
+ list.forEach(k=>{if(C[k]===undefined)C[k]=k});TRB=false;if(LANG===lg)applyLang()}
+function compute(){
+ const ms=S.ms,ds=dayStart(ms),o={ms,ds};
+ o.sr=rs('Sun',1,ds);o.ss=rs('Sun',-1,ds);o.sr2=rs('Sun',1,ds+864e5);o.mr=rs('Moon',1,ds);o.ms_=rs('Moon',-1,ds);
+ if(!o.sr||!o.ss||!o.sr2)throw new Error('Sunrise/sunset unavailable for this location and date');
+ const vd=ms<o.sr?(wdOf(ms)+6)%7:wdOf(ms),vs=ms<o.sr?o.sr-864e5:o.sr;o.wd=vd;
+ o.moon=sid('Moon',ms);o.sun=sid('Sun',ms);
+ o.tith=edges(F.tithi,ms);o.nak=edges(F.nak,ms);o.yoga=edges(F.yoga,ms);o.kar=edges(F.kar,ms);
+ o.asc=lagna(ms);o.nv=edges(m=>Math.floor(lagna(m)/(10/3)),ms,6e4,90);o.mrs=edges(m=>Math.floor(sid('Moon',m)/30),ms);o.nn=F.nak(o.nak.end+6e4);o.cbs=[];for(let t=o.sr;t<o.sr2&&o.cbs.length<4;){const e=edges(m=>Math.floor(sid('Moon',m)/30),t);o.cbs.push(e);t=e.end+6e4}o.yl=[];for(let t=o.sr,k=0;t<o.sr2&&k<4;k++){const e=edges(F.yoga,t);o.yl.push(e);t=e.end+6e4}
+ o.lag=[];let cur=null;for(let t=ds;t<=ds+864e5;t+=60000){const r=Math.floor(lagna(t)/30);if(!cur||cur.r!==r){if(cur)cur.end=t;cur={r,start:t,end:ds+864e5};o.lag.push(cur)}}
+ const dl=(o.ss-o.sr)/8;o.seg=i=>[o.sr+(i-1)*dl,o.sr+i*dl];
+ o.hora=[];const dh=(o.ss-o.sr)/12,nh=(o.sr2-o.ss)/12,st=CH.indexOf(WL[vd]);
+ for(let i=0;i<24;i++){const a=i<12?o.sr+i*dh:o.ss+(i-12)*nh,b=i<12?a+dh:a+nh;o.hora.push({p:CH[(st+i)%7],a,b})}
+ const mu=(o.ss-o.sr)/15;o.abh=[o.sr+7*mu,o.sr+8*mu];o.brm=[o.sr-96*6e4,o.sr-48*6e4];
+ o.win=[];const bl=[RAHU[vd],YAMA[vd],GUL[vd]].map(i=>o.seg(i));
+ for(let t=o.sr;t+9e5<=o.ss;t+=9e5){const m=t+45e4,h=o.hora.find(x=>m>=x.a&&m<x.b);let c=0;if(h&&['Jupiter','Venus','Mercury','Moon'].includes(h.p))c+=1;if(m>=o.abh[0]&&m<o.abh[1])c+=2;const k=F.kar(m);o.win.push({a:t,b:t+9e5,s:c,blocked:bl.some(b=>m>=b[0]&&m<b[1]),vish:k>0&&k<57&&k%7===0})}
+ const nb=F.nak(ms),bn=+$('#bn').value,br=+$('#br').value;
+ o.n=mod(nb-bn,27)+1;o.tara=(o.n-1)%9;
+ o.cb=mod(Math.floor(o.moon/30)-br,12)+1;o.cbq=[1,3,6,7,10,11].includes(o.cb)?'ok':[4,8,12].includes(o.cb)?'bad':'mid';
+ const ti=o.tith.i;o.shukla=ti<15;o.tn=ti%15;o.tcl=o.tn==14?(o.shukla?'Purna':'Amavasya'):TC[o.tn%5];
+ o.rikta=o.tcl==='Rikta'||o.tcl==='Amavasya';o.vishti=karana(o.kar.i).startsWith('Vishti');o.ybad=YBAD.includes(o.yoga.i);
+ const mr=Math.floor(o.moon/30);o.panchak=mr==10||mr==11;
+ o.pl=['Sun','Moon','Mars','Mercury','Jupiter','Venus','Saturn','Rahu','Ketu','Uranus','Neptune','Pluto'].map(p=>{const a=sid(p,ms),b=sid(p,ms-432e5),c=sid(p,ms+432e5);let d=mod(c-b+180,360)-180;return{p,lon:a,retro:p==='Rahu'||p==='Ketu'||d<0}});
+ const pan=10-(o.rikta?2:0)-(o.vishti?2:0)-(o.ybad?2:0)-(o.panchak?1:0)-1;
+ o.sc={pan:Math.max(2,pan),tara:[5,9,2,9,2,9,2,9,9][o.tara],cb:{ok:8,mid:6,bad:3}[o.cbq]};
+ o.sc.all=(o.sc.pan+o.sc.tara+o.sc.cb)/3;
+ return o}
+const dg=x=>Math.floor(x%30)+'°'+String(Math.floor((x%1)*60)).padStart(2,'0')+'′ '+RA[Math.floor(x/30)];
+const nkp=x=>{const n=Math.floor(x/NK);return N[n]+' · pada '+(Math.floor((x%NK)/(NK/4))+1)};
+const row=(a,b)=>`<tr><th>${a}</th><td>${b}</td></tr>`;
+const stars=s=>'★'.repeat(Math.round(s/2))+'☆'.repeat(5-Math.round(s/2));
+const verdict=s=>s>=8?['Highly auspicious','ok']:s>=6.5?['Auspicious','ok']:s>=5?['Mixed','mid']:s>=3.5?['Caution','bad']:['Inauspicious','bad'];
+const el=(k,e)=>`${e.start==null?'':fDT(e.start)} → ${fDT(e.end)} <small>(${fDur(e.end-R.ms)} left)</small>`;
+function render(){
+ const o=R,nk=o.nak.i,t=TARA[o.tara],v=verdict(o.sc.all),bn=+$('#bn').value;
+ const lgn=o.lag.find(l=>S.ms>=l.start&&S.ms<l.end)||o.lag[0],nl=o.lag[o.lag.indexOf(lgn)+1],cbt={ok:'अनुकूल',mid:'सामान्य',bad:'प्रतिकूल'}[o.cbq],mrn=RA[Math.floor(o.moon/30)],fx=m=>(m<o.ds||m-o.ds>=864e5)?fDT(m):fT(m);
+ const br=+$('#br').value,hq=h=>[1,3,6,7,10,11].includes(h)?'ok':[4,8,12].includes(h)?'bad':'mid',cbn={ok:'अनुकूल',mid:'सामान्य',bad:'प्रतिकूल'};const mg=pr=>{const r=[];o.win.forEach(w=>{if(!pr(w))return;const l=r[r.length-1];if(l&&l.b===w.a){l.b=w.b;l.s=Math.max(l.s,w.s)}else r.push({a:w.a,b:w.b,s:w.s})});return r};
+ const best=mg(w=>!w.blocked&&!w.vish&&w.s>=1).filter(x=>x.b-x.a>=18e5).sort((a,b)=>b.s-a.s||a.a-b.a).slice(0,3).sort((a,b)=>a.a-b.a);
+ const avoidW=[['राहु काल',o.seg(RAHU[o.wd])],['यमगण्ड',o.seg(YAMA[o.wd])],['गुलिक काल',o.seg(GUL[o.wd])]];
+ o.bestT=best.map(b=>fT(b.a)+'-'+fT(b.b)+(b.s>=3?' abhijit+benefic hora':b.s==2?' abhijit':' benefic hora'));o.bhadraT=mg(w=>w.vish).map(b=>fT(b.a)+'-'+fT(b.b));const day=o.sc.tara<=2?'आज नया या बड़ा काम टालें; नियमित काम करें।':o.sc.all>=6.5?'शुभ समय में काम शुरू करें।':'सावधानी रखें और नीचे दिए शुभ समय में ही काम करें।';
+ $('#hero').innerHTML=`<div class="hero"><small>${S.live?'● लाइव':'चुना हुआ समय'} · ${fDT(S.ms)} · अभी का लग्न</small><div class="lg">${RA[Math.floor(o.asc/30)]} लग्न</div><div>${dg(o.asc)} · स्वामी ${RL[Math.floor(o.asc/30)]}</div><small>${fT(lgn.start)} से ${fT(lgn.end)} तक${nl?' · अगला: '+RA[nl.r]:''}</small><div style="margin-top:6px">नवांश लग्न: <b>${RA[o.nv.i%12]}</b> (${RA[Math.floor(o.asc/30)]} का ${Math.floor((o.asc%30)/(10/3))+1}वाँ नवांश) <small>${fT(o.nv.start)}–${fT(o.nv.end)}</small></div><div class="chips"><span class="chip">${o.shukla?'शुक्ल':'कृष्ण'} ${TI[o.tn]} · ${fx(o.tith.end)} तक</span><span class="chip">${N[nk]} · ${fx(o.nak.end)} तक</span><span class="chip">योग ${YG[o.yoga.i]} · ${fx(o.yoga.end)} तक</span><span class="chip">चन्द्र ${mrn} · ${fx(o.mrs.start)}–${fx(o.mrs.end)}</span></div></div>`;
+ $('#top').style.display=['dash','lag'].includes(S.tab)?'':'none';
+ $('#chartbox').innerHTML=`<div class="card"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3 style="flex:1">कुंडली चार्ट</h3><select id="dvs" style="width:auto" aria-label="चार्ट प्रकार">${Object.keys(DVN).map(k=>`<option value="${k}" ${k==S.dv?'selected':''}>${DVN[k]}</option>`).join('')}</select><label style="display:flex;gap:4px;align-items:center;color:var(--ink)"><input type="checkbox" id="chk" style="width:auto" ${S.showChart?'checked':''}>दिखाएँ</label></div>${S.showChart?chart(o,S.dv):''}<small>${S.dv==1?'':DVN[S.dv]+' — पाराशरी विधि से गणना। '}</small></div>`;
+ $('#dvs').onchange=e=>{S.dv=+e.target.value;refresh()};$('#chk').onchange=e=>{S.showChart=e.target.checked;refresh()};
+ $('#s-dash').innerHTML=`<div class="card full"><div class="big ${v[1]}">${v[0]} <span class="stars">${stars(o.sc.all)}</span></div><div>${day}</div><small>Application-based assessment ${o.sc.all.toFixed(1)}/10 (classical rule नहीं) · पंचांग ${o.sc.pan} · तारा ${o.sc.tara} · चन्द्र ${o.sc.cb}</small></div>
+<div class="card"><h2>आज के शुभ समय</h2>${best.length?best.map(b=>`<div class="win"><b>${fT(b.a)}–${fT(b.b)}</b><span>${b.s>=3?'अभिजित + शुभ होरा':b.s==2?'अभिजित':'शुभ होरा'}</span></div>`).join(''):'<small>आज कोई स्पष्ट शुभ खिड़की नहीं मिली</small>'}<h3 style="margin-top:12px">इनसे बचें</h3>${avoidW.map(a=>`<div class="win x"><b>${a[1].map(fT).join('–')}</b><span>${a[0]}</span></div>`).join('')}${mg(w=>w.vish).map(b=>`<div class="win x"><b>${fT(b.a)}–${fT(b.b)}</b><span>भद्रा (विष्टि करण)</span></div>`).join('')}<small>शुभ खिड़की = राहु/यमगण्ड/गुलिक/भद्रा से बाहर, और अभिजित या शुभ होरा (गुरु, शुक्र, बुध, चन्द्र) में। General guidance।</small></div>
+<div class="card"><h2>आज का योग</h2>${o.yl.map(y=>`<div class="win ${YBAD.includes(y.i)?'x':''}"><b>${YG[y.i]}</b><span>${y.start<o.ds?'पहले से':fx(y.start)} – ${fx(y.end)} · ${YBAD.includes(y.i)?'अशुभ':'शुभ'}</span></div>`).join('')}</div>
+<div class="card"><h2>1. नक्षत्र का सम्पूर्ण विवरण</h2><div class="tw"><table>${row('नक्षत्र',`${N[nk]} · ${fx(o.nak.end)} तक`)}${row('स्वामी',LORD9[nk%9])}${row('देवता',DEITY[nk])}${row('गण',GN[GANA[nk]])}${row('प्रकृति',TN[TY[nk]])}${row('चन्द्रमा',dg(o.moon))}${row('पंचक',o.panchak?'<span class="bad">सक्रिय (चन्द्र कुम्भ/मीन में)</span>':'<span class="ok">नहीं</span>')}</table></div></div>
+<div class="card"><h2>2. गोचर चन्द्र बल</h2>${o.cbs.map(c=>{const h=mod(c.i-br,12)+1,q=hq(h),cur=S.ms>=c.start&&S.ms<c.end;return `<div class="win ${q=='bad'?'x':''}" ${cur?'style="outline:1px solid var(--gold)"':''}><b>${RA[c.i]}${cur?' · अभी':''}</b><span>${c.start<o.sr?'सूर्योदय से':fx(c.start)} – ${c.end>=o.sr2?'अगले सूर्योदय तक':fx(c.end)} · ${h}वाँ भाव · ${cbn[q]}</span></div>`}).join('')}<small>जन्म राशि ${RA[br]} से गिनती। सामान्य नियम: 1,3,6,7,10,11 अनुकूल; 4,8,12 प्रतिकूल। तारा बल: ${t[0]} (${o.n}वाँ नक्षत्र)</small></div>
+<div class="card"><h2>3. पक्ष बल</h2><b>${o.shukla?'शुक्ल पक्ष':'कृष्ण पक्ष'}</b> · ${TI[o.tn].replace('Purnima',o.shukla?'Purnima':'Amavasya')} (${o.tcl}) · ${fx(o.tith.end)} तक ${o.rikta?'<br><span class="bad">रिक्ता/अमावस्या: नए काम के लिए सामान्यतः टालें</span>':''}</div>
+<div class="card"><h2>4. होरा</h2>${(()=>{const h=o.hora.find(x=>S.ms>=x.a&&S.ms<x.b)||o.hora[0];return `अभी: <b>${h.p}</b> ${fT(h.a)}–${fT(h.b)}`})()}<div class="tw"><table><tr>${o.hora.slice(0,12).map(h=>`<th>${h.p}</th>`).join('')}</tr><tr>${o.hora.slice(0,12).map(h=>`<td>${fT(h.a)}</td>`).join('')}</tr></table></div></div>
+<div class="card"><h2>5. समय-खिड़कियाँ</h2><div class="tw"><table>${row('अभिजित',o.abh.map(fT).join('–')+' <span class="ok">शुभ</span>')}${row('ब्रह्म मुहूर्त',o.brm.map(fT).join('–'))}${row('सूर्योदय / सूर्यास्त',fT(o.sr)+' / '+fT(o.ss))}</table></div></div>
+<div class="card"><h2>6. निष्पक्ष समीक्षा</h2><ul><li>तारा: ${t[0]} — ${t[1]}।</li><li>चन्द्र बल: ${o.cb}वाँ भाव (${cbt})।</li><li>तिथि ${o.tcl}${o.rikta?' ⚠':''}; योग ${YG[o.yoga.i]}${o.ybad?' ⚠':''}; करण ${karana(o.kar.i)}${o.vishti?' ⚠':''}।</li><li>पंचक: ${o.panchak?'सक्रिय':'नहीं'}।</li></ul><small>ये संकेत सामान्य ज्योतिष मार्गदर्शन हैं, मुहूर्त चिन्तामणि के सत्यापित उद्धरण नहीं।</small></div>
+<div class="card"><h2>7. गोचर / ग्रह स्थिति</h2><div class="tw"><table>${o.pl.map(p=>`<tr><th>${p.p}</th><td>${dg(p.lon)}</td><td class="${p.retro?'mid':''}">${p.retro?'वक्री':'मार्गी'}</td></tr>`).join('')}</table></div></div>`;
+ $('#s-pan').innerHTML=`<div class="card full"><h2>Panchanga</h2><div class="tw"><table><tr><th>Element</th><th>Now</th><th>Runs</th></tr>
+<tr><td>Vara</td><td>${WD[o.wd]} (${WL[o.wd]})</td><td>${fT(o.sr)} → next sunrise</td></tr>
+<tr><td>Tithi</td><td>${o.shukla?'Shukla':'Krishna'} ${TI[o.tn]} · ${o.tcl}</td><td>${el('',o.tith)}</td></tr>
+<tr><td>Nakshatra</td><td>${N[nk]}</td><td>${el('',o.nak)}</td></tr>
+<tr><td>Yoga</td><td>${YG[o.yoga.i]} <span class="${o.ybad?'bad':'ok'}">${o.ybad?'inauspicious':'auspicious'}</span></td><td>${el('',o.yoga)}</td></tr>
+<tr><td>Karana</td><td>${karana(o.kar.i)}</td><td>${el('',o.kar)}</td></tr></table></div></div>
+<div class="card"><div class="tw"><table>${row('Sunrise / Sunset',fT(o.sr)+' / '+fT(o.ss))}${row('Moonrise / Moonset',fT(o.mr)+' / '+fT(o.ms_))}${row('Rahu kalam',o.seg(RAHU[o.wd]).map(fT).join('–'))}${row('Yamaganda',o.seg(YAMA[o.wd]).map(fT).join('–'))}${row('Gulika',o.seg(GUL[o.wd]).map(fT).join('–'))}${row('Abhijit',o.abh.map(fT).join('–'))}${row('Brahma muhurta',o.brm.map(fT).join('–'))}</table></div></div>`;
+ const w=864e5,pos=(S.ms-o.ds)/w*100;
+ $('#s-lag').innerHTML=`<div class="card"><h2>Lagna</h2><div class="big">${dg(o.asc)}</div><div>Lord: ${RL[Math.floor(o.asc/30)]}</div></div><div class="card full"><h3>Timeline (local day)</h3><div class="tw"><div class="tl">${o.lag.map(l=>`<button data-l="${l.r}" class="${S.ms>=l.start&&S.ms<l.end?'cur':''}" style="flex:${l.end-l.start}">${RA[l.r]}</button>`).join('')}<span class="now" style="left:${pos}%"></span></div></div><div id="ld" class="mut" style="margin-top:8px">Tap a lagna for details.</div><div class="tw"><table>${o.lag.map(l=>`<tr><td>${RA[l.r]}</td><td>${fT(l.start)} → ${fT(l.end)}</td></tr>`).join('')}</table></div></div>`;
+ $('#s-lag').insertAdjacentHTML('beforeend',`<div class="card"><h3>नवांश (D9) — अभी</h3><div class="tw"><table><tr><th>ग्रह</th><th>राशि (D1)</th><th>नवांश राशि (D9)</th><th>नवांश संख्या</th></tr><tr><th>लग्न</th><td>${RA[Math.floor(o.asc/30)]}</td><td>${RA[dv(9,o.asc)]}</td><td>${Math.floor((o.asc%30)/(10/3))+1}</td></tr>${o.pl.map(p=>`<tr><th>${PH[p.p]}</th><td>${dg(p.lon)}</td><td>${RA[dv(9,p.lon)]}</td><td>${Math.floor((p.lon%30)/(10/3))+1}</td></tr>`).join('')}</table></div><small>नवांश लग्न ${RA[o.nv.i%12]}: ${fT(o.nv.start)}–${fT(o.nv.end)}</small></div>`);
+ $('#s-lag').insertAdjacentHTML('beforeend',`<div class="card full"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><h3 style="flex:1">विभाजन चार्ट (इस समय के)</h3><select id="dva" style="width:auto" aria-label="चार्ट चुनें">${Object.keys(DVN).filter(k=>k!=1&&!S.dvs.includes(+k)).map(k=>`<option value="${k}">${DVN[k]}</option>`).join('')}</select><button id="dvb">➕ चार्ट जोड़ें</button></div><div class="chg">${S.dvs.map(k=>`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>${DVN[k]}</b><button data-rm="${k}" aria-label="हटाएँ">✕</button></div>${chart(o,k,0)}</div>`).join('')}</div></div>`);
+ $('#dvb').onclick=()=>{const v=+$('#dva').value;if(v&&!S.dvs.includes(v)){S.dvs.push(v);sv();refresh()}};
+ $('#s-lag').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{S.dvs=S.dvs.filter(x=>x!=b.dataset.rm);sv();refresh()});
+ $('#s-lag').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{const l=o.lag.find(x=>x.r==b.dataset.l);$('#ld').innerHTML=`<b>${RA[l.r]}</b> lagna · lord ${RL[l.r]} · ${fT(l.start)}–${fT(l.end)} (${fDur(l.end-l.start)})`});
+ const nxt=TARA[mod(o.nn-bn,27)%9],rsl=t[2]=='ok'?'✓ अनुकूल (Favourable)':t[2]=='bad'?'✗ प्रतिकूल (Unfavourable)':'~ मिश्रित (Mixed)';
+ $('#s-tara').innerHTML=`<div class="card"><div class="kv"><small>MY BIRTH NAKSHATRA · मेरा जन्म नक्षत्र</small><b>${N[bn]}</b></div><div class="kv"><small>TODAY'S NAKSHATRA · आज का नक्षत्र</small><b>${N[nk]}</b><small>${fx(o.nak.end)} तक · फिर ${N[o.nn]} (${nxt[0]} तारा)</small></div><div class="kv"><small>YOUR TARA · आपकी तारा</small><b class="${t[2]}">${t[0]} तारा</b></div><div class="kv"><small>RESULT · परिणाम</small><b class="${t[2]}">${rsl}</b></div><div class="kv"><small>WHY? · क्यों?</small>${N[bn]} को 1 गिनने पर ${N[nk]} ${o.n}वाँ नक्षत्र है। गिनती को 9 के चक्र में बाँटने पर यह तारा ${o.tara+1} — ${t[0]} में आता है।</div><div class="kv"><small>GOOD FOR · उपयुक्त</small>${t[3]}</div><div class="kv"><small>CAUTION · सावधानी</small>${t[4]}</div></div>
+<div class="card full"><h3>9 तारा — ${N[bn]} के लिए</h3><div class="tw"><table class="tt"><tr><th></th><th>S.No.</th><th>First</th><th>S.No.</th><th>Second</th><th>S.No.</th><th>Third</th></tr>${TARA.map((x,k)=>`<tr class="${x[2]=='bad'?'rb':(k==0||k==8)?'rl':'rg'}"><th>${x[0]}</th>${[0,1,2].map(j=>{const n=k+9*j,i=(bn+n)%27;return `<td class="c">${n+1}</td><td class="${i==nk?'cur':''}">${nkl(i)}${i==nk?' ★':''}</td>`}).join('')}</tr>`).join('')}</table></div><small>★ = आज का नक्षत्र। _ के बाद नक्षत्र स्वामी: K केतु, V शुक्र, Su सूर्य, M चन्द्र, Ma मंगल, R राहु, J गुरु, Sa शनि, Me बुध।</small></div>`;
+ let trh='<small>गोचर तालिका बन रही है…</small>';
+ if(S.tab==='pl'){const dk=Math.floor(S.ms/864e5);if(TRC.k!==dk)TRC={k:dk,v:computeTr(S.ms),u:upcoming(S.ms)};
+  const fd=m=>new Intl.DateTimeFormat('en-GB',{timeZone:S.tz,day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(m);
+  trh=TRC.v.map(r=>{const pp=o.pl.find(x=>x.p===r.p),pct=Math.min(100,Math.max(0,(S.ms-r.a)/(r.b-r.a)*100));
+   return `<div class="card"><h3>${r.p} · ${RA[r.i]}</h3><small>${nkp(pp.lon)} · ${dg(pp.lon)}</small> <b class="${pp.retro?'mid':'ok'}">${pp.retro?'वक्री':'मार्गी'}</b><div class="tl2"><i style="width:${pct}%"></i></div><div class="tw"><table><tr><th>पिछला गोचर</th><td>${RA[r.pv]} → ${RA[r.i]}</td><td>${fd(r.a)}</td></tr><tr><th>अगला गोचर</th><td>${RA[r.i]} → ${RA[r.nx]}</td><td>${fd(r.b)}</td></tr>${r.rs!=null?`<tr><th>${r.rs?'वक्री चल रहा':'मार्गी चल रहा'}</th><td>शुरू: ${fd(r.ra)}</td><td>बदलेगा: ${fd(r.rb)}</td></tr>`:''}${r.p=='Rahu'||r.p=='Ketu'?'<tr><th>गति</th><td colspan="2">सदा वक्री (माध्य node)</td></tr>':''}</table></div></div>`}).join('')}
+ let uph='<small>सूची बन रही है…</small>';
+ if(S.tab==='pl'&&TRC.u){let cur='';const fdm=m=>new Intl.DateTimeFormat('en-GB',{timeZone:S.tz,day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(m);
+  uph=TRC.u.filter(e=>S.moon||e.p!=='Moon').map(e=>{const p=lp(e.t),mk=p.year+'-'+p.month,hd=mk!==cur?(cur=mk,`<h3 style="margin:12px 0 4px">${MN[+p.month-1]} ${p.year}</h3>`):'';
+   return hd+`<div class="win ${e.kind=='sign'?'':'m'}"><b>${fdm(e.t)}</b><span>${PH[e.p]} · ${e.kind=='sign'?RA[e.a]+' → '+RA[e.b]:(e.b?'वक्री शुरू':'मार्गी शुरू')}</span></div>`}).join('')}
+ $('#s-pl').innerHTML=`<div class="card full"><h2>गोचर (Planetary Transit)</h2><small>हर ग्रह का पिछला और अगला राशि-परिवर्तन; पट्टी बताती है कि ग्रह अपनी राशि-यात्रा में कितना आगे है। राहु-केतु माध्य node हैं।</small></div><div class="split"><div class="card up"><h2>आने वाले गोचर</h2><label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input type="checkbox" id="mchk" style="width:auto" ${S.moon?'checked':''}>चन्द्र भी (अगले 30 दिन)</label>${uph}<small style="display:block;margin-top:8px">अगले 12 महीने। हरी पट्टी = राशि परिवर्तन, पीली = वक्री/मार्गी बदलाव।</small></div><div class="stk">${trh}</div></div>`;$('#mchk').onchange=e=>{S.moon=e.target.checked;refresh()};
+ const pls=o.pl.map(p=>({...p,n:Math.floor(p.lon/NK),pd:Math.floor((p.lon%NK)/(NK/4))+1,nm:PH[p.p],rt:p.retro&&p.p!=='Rahu'&&p.p!=='Ketu'?'(व)':''})),cn=(a,b)=>mod(b.n-a.n,27)+1,mp=pls.filter(p=>S.mxp.includes(p.p));
+ $('#s-nk').innerHTML=`<div class="card full"><h2>सभी ग्रह — नक्षत्र में</h2><div class="tw"><div class="ng" style="min-width:720px">${N.map((n,i)=>{const ps=pls.filter(p=>p.n===i);return `<div class="nc ${ps.length?'has':''}"><small>${i+1}</small><b>${nkl(i)}</b>${ps.map(p=>`<div class="pp">${p.nm}${p.rt} <small>पद ${p.pd}</small></div>`).join('')}</div>`}).join('')}</div></div><small>सुनहरे खाने = जिसमें कोई ग्रह है। (व) = वक्री।</small></div>
+<div class="card"><h2>ग्रह किस नक्षत्र में</h2><div class="tw"><table><tr><th>ग्रह</th><th>नक्षत्र</th><th>पद</th><th>नक्षत्र में अंश</th><th>स्थिति</th></tr>${pls.map(p=>`<tr><th>${p.nm}${p.rt}</th><td>${nkl(p.n)} (${p.n+1})</td><td>${p.pd}</td><td>${(p.lon%NK).toFixed(2)}° / 13.33°</td><td>${dg(p.lon)}</td></tr>`).join('')}</table></div></div>
+<div class="card full"><h2>नक्षत्र-दूरी तालिका</h2><div class="chips2">${pls.map(p=>`<label class="chip"><input type="checkbox" data-mx="${p.p}" style="width:auto" ${S.mxp.includes(p.p)?'checked':''}> ${p.nm}</label>`).join('')}<button data-mxa="all">सभी</button><button data-mxa="none">कोई नहीं</button></div><small>ऊपर से ग्रह चुनें। पंक्ति के ग्रह से कॉलम के ग्रह तक गिनती (पंक्ति वाले ग्रह का अपना नक्षत्र = 1)।</small><div class="tw"><table class="mx"><tr><th></th>${mp.map(p=>`<th>${HA[p.p]}</th>`).join('')}</tr>${mp.map(a=>`<tr><th>${a.nm}</th>${mp.map(b=>`<td class="${a===b?'s':''}">${a===b?'•':cn(a,b)}</td>`).join('')}</tr>`).join('')}</table></div></div>
+<div class="card full"><h2>जोड़ी-वार विवरण</h2><small>सीधी गिनती: पहले ग्रह के नक्षत्र को 1 मानकर दूसरे ग्रह का नक्षत्र कितनवाँ है। बीच के नक्षत्र = दोनों के बीच के पूरे नक्षत्र (गिनती − 2)। उल्टी गिनती: दूसरे ग्रह से पहले ग्रह तक। राहु-केतु हमेशा 14वें या 15वें नक्षत्र पर होते हैं (180° की दूरी)। अरुण, वरुण, प्लूटो आधुनिक ग्रह हैं; ये मुहूर्त स्कोर में नहीं गिने जाते।</small></div><div class="full chg" style="margin-top:0;grid-template-columns:repeat(auto-fit,minmax(min(100%,430px),1fr));gap:16px">${pls.slice(0,-1).map((a,i)=>`<div class="card pc"><h3>${a.nm} (${nkl(a.n)})</h3><div class="tw"><table class="wrap"><tr><th>जोड़ी</th><th>नक्षत्र</th><th>सीधी</th><th>बीच</th><th>उल्टी</th></tr>${pls.slice(i+1).map(b=>{const c=cn(a,b),r=cn(b,a);return `<tr><td>${a.nm} → ${b.nm}</td><td>${nkl(b.n)}</td><td>${c==1?'एक ही':c+'वाँ'}</td><td>${c<=2?0:c-2}</td><td>${r==1?'एक ही':r+'वाँ'}</td></tr>`}).join('')}</table></div></div>`).join('')}</div>`;
+ $('#s-nk').querySelectorAll('[data-mx]').forEach(c=>c.onchange=()=>{const p=c.dataset.mx;S.mxp=c.checked?[...S.mxp,p]:S.mxp.filter(x=>x!==p);svm();refresh()});
+ $('#s-nk').querySelectorAll('[data-mxa]').forEach(b=>b.onclick=()=>{S.mxp=b.dataset.mxa==='all'?pls.map(p=>p.p):[];svm();refresh()});
+ $('#s-det').innerHTML=`<div class="card"><h2>Calculation details</h2><div class="tw"><table>${row('Engine','Astronomy Engine 2.1.19 (apparent geocentric positions)')}${row('Zodiac / ayanamsha','Sidereal, Lahiri ('+ayan(S.ms).toFixed(4)+'°)')}${row('Lagna','Ascendant from local sidereal time, mean obliquity (no house system used)')}${row('Location',S.lat+', '+S.lon)}${row('Timezone',S.tz)}${row('Tara','Count from birth nakshatra to today\'s, modulo 9')}${row('Chandra bala','Moon rashi counted from birth rashi')}${row('Score','Application-based assessment, not a classical rule')}</table></div><p><b>Rule status.</b> Every flag shown (Rikta tithi, Vishti karana, inauspicious yogas, Panchak, Rahu kalam, tara and Chandra bala) is <b>general astrological guidance</b>. None is verified here as a direct Muhurta Chintamani quotation, and none is presented as one.</p></div>`;
+}
+const ms0=()=>S.ms;
+function tick(){$('#clk').textContent=''}
+function refresh(){CACHE.clear();$('#err').hidden=true;try{if(typeof Astronomy==='undefined')throw new Error('Ephemeris engine failed to load');R=compute();render();renderAI();applyLang()}catch(e){$('#err').hidden=false;$('#err').textContent='Calculation unavailable: '+e.message}syncInputs()}
+function syncInputs(){const p=lp(S.ms);$('#d').value=`${p.year}-${p.month}-${p.day}`;$('#t').value=`${p.hour}:${p.minute}`;$('#lat').value=S.lat;$('#lon').value=S.lon;$('#tz').value=S.tz}
+function fromInputs(){const[d,t]=[$('#d').value,$('#t').value||'00:00'];const[y,m,dd]=d.split('-').map(Number),[h,mi]=t.split(':').map(Number);const g=Date.UTC(y,m-1,dd,h,mi);S.ms=g-tzOff(g)*60000}
+$('#bn').innerHTML=N.map((n,i)=>`<option value="${i}">${n}</option>`).join('');$('#bn').value=10;
+$('#br').innerHTML=RA.map((n,i)=>`<option value="${i}">${n}</option>`).join('');$('#br').value=4;
+$('#bn').onchange=()=>{$('#br').value=Math.floor(+$('#bn').value*NK/30);refresh()};$('#br').onchange=refresh;
+['d','t'].forEach(i=>$('#'+i).onchange=()=>{S.live=false;fromInputs();refresh()});
+['lat','lon','tz'].forEach(i=>$('#'+i).onchange=()=>{try{const lat=+$('#lat').value,lon=+$('#lon').value,tz=$('#tz').value;new Intl.DateTimeFormat('en',{timeZone:tz});S.lat=lat;S.lon=lon;S.tz=tz}catch(e){}refresh()});
+$('#prev').onclick=()=>{S.live=false;S.ms-=864e5;refresh()};$('#next').onclick=()=>{S.live=false;S.ms+=864e5;refresh()};$('#now').onclick=()=>{S.live=true;S.ms=Date.now();refresh()};
+$('#gps').onclick=()=>navigator.geolocation&&navigator.geolocation.getCurrentPosition(p=>{S.lat=+p.coords.latitude.toFixed(4);S.lon=+p.coords.longitude.toFixed(4);S.tz=Intl.DateTimeFormat().resolvedOptions().timeZone;refresh()},()=>{$('#err').hidden=false;$('#err').textContent='Location permission denied. Enter coordinates manually.'});
+const TABS=[['dash','🏠 आज'],['pan','📜 पंचांग'],['lag','🌅 लग्न'],['tara','⭐ तारा'],['pl','🪐 गोचर'],['nk','🌟 नक्षत्र'],['ai','✨ मुहूर्त'],['det','ℹ️ विवरण']];
+$('#nav').innerHTML=TABS.map(([k,n])=>`<button data-k="${k}" class="${k=='dash'?'on':''}">${n}</button>`).join('');
+$('#nav').onclick=e=>{const k=e.target.dataset.k;if(!k)return;S.tab=k;$('#top').style.display=['dash','lag'].includes(k)?'':'none';if(k==='pl')setTimeout(refresh,0);document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id=='s-'+k));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.k==k))};
+setInterval(()=>{if(S.live){S.ms=Date.now();const edge=[R&&R.nak.end,R&&R.tith.end,R&&R.yoga.end,R&&R.kar.end].some(x=>x&&S.ms>=x),lg=R&&R.lag.some(l=>S.ms>=l.end&&S.ms<l.end+30000);if(!R||edge||lg||S.ms%60000<1000||true){if(Math.floor(S.ms/30000)!==S.last){S.last=Math.floor(S.ms/30000);refresh()}}}},1000);
+const THEMES={dark:'डार्क नेवी',light:'लाइट',saffron:'केसरिया',forest:'जंगल हरा',royal:'रॉयल बैंगनी'};
+let th;try{th=localStorage.getItem('theme')}catch(e){}
+if(!THEMES[th])th=window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+document.documentElement.dataset.theme=th;
+$('#theme').innerHTML=Object.keys(THEMES).map(k=>`<option value="${k}" ${k==th?'selected':''}>${THEMES[k]}</option>`).join('');
+$('#theme').onchange=e=>{document.documentElement.dataset.theme=e.target.value;try{localStorage.setItem('theme',e.target.value)}catch(x){}};
+$('#lang').innerHTML=Object.keys(LANGS).map(k=>`<option value="${k}" ${k==LANG?'selected':''}>${LANGS[k]}</option>`).join('');
+$('#lang').onchange=e=>{LANG=e.target.value;try{localStorage.setItem('lang',LANG)}catch(x){}refresh()};
+$('#gt').onclick=()=>window.open('https://translate.google.com/translate?sl=auto&tl='+(LANG==='hi'?'en':LANG)+'&u='+encodeURIComponent(location.href),'_blank');
+S.live=true;refresh();
+</script></body></html>
